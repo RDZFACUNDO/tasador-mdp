@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS (Mantenemos tu estilo verde #1d6e5d) ---
+# --- ESTILOS CSS ---
 st.markdown("""
     <style>
     /* 1. TEXTOS GENERALES EN VERDE */
@@ -134,15 +134,15 @@ if 'lat' not in st.session_state:
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
     
-# Variables para guardar el resultado y que no desaparezca
+# Variables para guardar el resultado
 if 'precio_calculado' not in st.session_state:
     st.session_state['precio_calculado'] = None
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
 
-# Variable para controlar si el usuario movió el mapa manualmente
-if 'zoom_level' not in st.session_state:
-    st.session_state['zoom_level'] = 14
+# Variable para rastrear el último barrio elegido
+if 'last_zona' not in st.session_state:
+    st.session_state['last_zona'] = "Centrar en..."
 
 st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
@@ -164,25 +164,24 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # Lógica de cambio de Zona (Solo si el usuario elige algo nuevo en el menú)
-    if zona_elegida != "Centrar en...":
-        nueva_lat, nueva_lon = barrios[zona_elegida]
-        if nueva_lat:
-             # Verificamos si realmente cambió la zona para no pisar el movimiento manual
-             # Usamos una variable auxiliar 'zona_actual' para detectar cambios reales del dropdown
-             if 'zona_actual' not in st.session_state or st.session_state['zona_actual'] != zona_elegida:
+    # --- LÓGICA DE MOVIMIENTO DEL MAPA CORREGIDA ---
+    # Solo si el usuario cambió el valor del menú respecto a la última vez
+    if zona_elegida != st.session_state['last_zona']:
+        st.session_state['last_zona'] = zona_elegida # Actualizamos la memoria
+        
+        if zona_elegida != "Centrar en...":
+            nueva_lat, nueva_lon = barrios[zona_elegida]
+            if nueva_lat:
                 st.session_state['lat'] = nueva_lat
                 st.session_state['lon'] = nueva_lon
-                st.session_state['zona_actual'] = zona_elegida
-                st.session_state['zoom_level'] = 15 # Acercamos un poco al elegir barrio
-                st.rerun()
+                st.rerun() # Recargamos para viajar al nuevo barrio
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
     # CREACIÓN DEL MAPA
-    # Usamos st.session_state para mantener la posición
+    # El mapa siempre nace en st.session_state['lat'] / ['lon']
     m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], 
-                   zoom_start=st.session_state['zoom_level'], 
+                   zoom_start=14, 
                    tiles=tile_layer)
     
     # Marcador rojo en la posición actual
@@ -192,27 +191,23 @@ with col_mapa:
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
 
-    # Agregamos la capacidad de hacer clic
     m.add_child(folium.LatLngPopup())
 
-    # Renderizamos el mapa
     mapa_output = st_folium(m, height=480, use_container_width=True)
 
-    # --- LÓGICA DE CLIC (CRÍTICO: NO USAR RERUN) ---
+    # --- LÓGICA DE CLIC ---
     if mapa_output['last_clicked']:
         click_lat = mapa_output['last_clicked']['lat']
         click_lon = mapa_output['last_clicked']['lng']
         
-        # Si las coordenadas cambiaron respecto a lo que tenemos guardado
+        # Si las coordenadas del clic son distintas a las actuales
         if abs(click_lat - st.session_state['lat']) > 0.00001 or abs(click_lon - st.session_state['lon']) > 0.00001:
             st.session_state['lat'] = click_lat
             st.session_state['lon'] = click_lon
-            # NO HACEMOS st.rerun() AQUÍ. 
-            # Al no recargar, el mapa no se centra de golpe, pero la variable 'lat' y 'lon' 
-            # ya se actualizó en memoria para el cálculo.
-            
-            # Solo mostramos un mensaje sutil de confirmación
-            st.toast("📍 Ubicación actualizada", icon="✅")
+            # Importante: AQUÍ YA NO HAY RERUN. 
+            # Al hacer clic, Streamlit recarga solo por el evento, 
+            # pero como ya actualizamos 'lat' y 'lon', el marcador se moverá solo.
+            # Y como 'zona_elegida' no cambió, el if de arriba no nos molestará.
     
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
@@ -239,7 +234,6 @@ with col_datos:
     if st.button("CALCULAR VALOR", use_container_width=True):
         input_data = pd.DataFrame(0, index=[0], columns=cols_entrenamiento)
         input_data['metros'] = metros
-        # Usamos las coordenadas que están en memoria (ya sea por menú o por clic)
         input_data['lat'] = st.session_state['lat']
         input_data['lon'] = st.session_state['lon']
         input_data['ambientes'] = ambientes
