@@ -74,14 +74,16 @@ st.markdown("""
         color: #333 !important;
     }
 
-    /* 5. BOTÓN CALCULAR */
+    /* 8. BOTÓN CALCULAR */
     .stButton>button {
         width: 100%;
         background-color: #1d6e5d;
         color: white !important;
-        border: none;
         height: 3em;
+        border-radius: 8px;
+        border: none;
         font-weight: bold;
+        transition: all 0.3s ease;
         margin-top: 15px;
     }
     .stButton>button:hover {
