@@ -205,7 +205,8 @@ with col_mapa:
 
 
 with col_datos:
-    st.markdown("### Características")
+    # --- CAMBIO AQUÍ: Margen negativo para subir todo el bloque ---
+    st.markdown("<h3 style='margin-top: -25px; padding-bottom: 10px;'>Características</h3>", unsafe_allow_html=True)
     
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
