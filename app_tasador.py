@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS (Mantenemos tu estilo verde #1d6e5d) ---
 st.markdown("""
     <style>
     /* 1. TEXTOS GENERALES EN VERDE */
@@ -133,16 +133,11 @@ if 'lat' not in st.session_state:
     st.session_state['lat'] = -38.0000
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
-    
-# Variables para guardar el resultado
+# Variables para guardar el resultado y que no desaparezca
 if 'precio_calculado' not in st.session_state:
     st.session_state['precio_calculado'] = None
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
-
-# Variable para rastrear el último barrio elegido
-if 'last_zona' not in st.session_state:
-    st.session_state['last_zona'] = "Centrar en..."
 
 st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
@@ -164,50 +159,40 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # --- LÓGICA DE MOVIMIENTO DEL MAPA CORREGIDA ---
-    # Solo si el usuario cambió el valor del menú respecto a la última vez
-    if zona_elegida != st.session_state['last_zona']:
-        st.session_state['last_zona'] = zona_elegida # Actualizamos la memoria
-        
-        if zona_elegida != "Centrar en...":
-            nueva_lat, nueva_lon = barrios[zona_elegida]
-            if nueva_lat:
+    # Si cambia el selector de zona, actualizamos
+    if zona_elegida != "Centrar en...":
+        nueva_lat, nueva_lon = barrios[zona_elegida]
+        if nueva_lat:
+             # Solo actualizamos si es diferente para no bloquear el movimiento manual
+             if nueva_lat != st.session_state['lat'] or nueva_lon != st.session_state['lon']:
                 st.session_state['lat'] = nueva_lat
                 st.session_state['lon'] = nueva_lon
-                st.rerun() # Recargamos para viajar al nuevo barrio
+                st.rerun()
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
-    # CREACIÓN DEL MAPA
-    # El mapa siempre nace en st.session_state['lat'] / ['lon']
-    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], 
-                   zoom_start=14, 
-                   tiles=tile_layer)
+    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, tiles=tile_layer)
     
-    # Marcador rojo en la posición actual
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
-        popup="Ubicación elegida",
+        popup="Propiedad",
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
 
-    m.add_child(folium.LatLngPopup())
-
+    # El mapa devuelve datos cada vez que interactúas
     mapa_output = st_folium(m, height=480, use_container_width=True)
 
-    # --- LÓGICA DE CLIC ---
+    # --- LÓGICA DE CLIC AUTOMÁTICO (Sin botón Confirmar) ---
     if mapa_output['last_clicked']:
         click_lat = mapa_output['last_clicked']['lat']
         click_lon = mapa_output['last_clicked']['lng']
         
-        # Si las coordenadas del clic son distintas a las actuales
-        if abs(click_lat - st.session_state['lat']) > 0.00001 or abs(click_lon - st.session_state['lon']) > 0.00001:
+        # Si el clic es diferente a lo que ya tenemos guardado, actualizamos y recargamos
+        # Usamos una pequeña tolerancia para evitar recargas infinitas por decimales
+        if abs(click_lat - st.session_state['lat']) > 0.0001 or abs(click_lon - st.session_state['lon']) > 0.0001:
             st.session_state['lat'] = click_lat
             st.session_state['lon'] = click_lon
-            # Importante: AQUÍ YA NO HAY RERUN. 
-            # Al hacer clic, Streamlit recarga solo por el evento, 
-            # pero como ya actualizamos 'lat' y 'lon', el marcador se moverá solo.
-            # Y como 'zona_elegida' no cambió, el if de arriba no nos molestará.
+            st.rerun() # Esto recarga la página solo para actualizar el marcador rojo
     
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
@@ -249,11 +234,11 @@ with col_datos:
         precio = modelo.predict(input_data)[0]
         m2 = precio / metros
         
-        # GUARDAMOS EL RESULTADO
+        # GUARDAMOS EL RESULTADO EN LA MEMORIA DE LA SESIÓN
         st.session_state['precio_calculado'] = precio
         st.session_state['m2_calculado'] = m2
 
-    # --- MOSTRAR RESULTADO ---
+    # --- MOSTRAR RESULTADO (Si existe en memoria) ---
     if st.session_state['precio_calculado'] is not None:
         precio_final = st.session_state['precio_calculado']
         m2_final = st.session_state['m2_calculado']
