@@ -8,10 +8,10 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS (FONDO BLANCO Y AJUSTES) ---
+# --- ESTILOS CSS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Forzar fondo blanco en toda la app */
+    /* 1. Fondo blanco general */
     [data-testid="stAppViewContainer"] {
         background-color: #ffffff;
     }
@@ -19,38 +19,61 @@ st.markdown("""
         background-color: #ffffff;
     }
     
-    /* Textos en color oscuro para contraste */
-    h1, h2, h3, p, label, div, span {
-        color: #212529 !important;
+    /* 2. Títulos y Textos principales en VERDE (#1d6e5d) */
+    h2, h3 {
+        color: #1d6e5d !important;
     }
     
-    /* Botón rojo estilizado */
+    /* Etiquetas de los inputs (Selectbox, Slider, etc.) */
+    .stSelectbox label, .stSlider label, .stNumberInput label, .stCheckbox label, .stRadio label {
+        color: #1d6e5d !important;
+        font-weight: bold;
+    }
+    
+    /* 3. Personalización de Sliders (Slicers) al color verde */
+    div[data-baseweb="slider"] > div > div > div > div {
+        background-color: #1d6e5d !important;
+    }
+    div[data-baseweb="slider"] > div > div > div[role="slider"] {
+        background-color: #1d6e5d !important;
+        box-shadow: 0 0 5px rgba(29, 110, 93, 0.5);
+    }
+    
+    /* 4. Botón de Calcular */
     .stButton>button {
         width: 100%;
-        background-color: #FF4B4B;
-        color: white !important; /* Texto blanco forzado en botón */
+        background-color: #1d6e5d; /* Tu color verde */
+        color: white !important;
         height: 3em;
         border-radius: 8px;
         border: none;
         font-weight: bold;
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #E04444;
+        background-color: #145244; /* Un verde un poco más oscuro para el efecto hover */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         color: white !important;
     }
 
-    /* Ajuste para subir el contenido de la derecha */
+    /* Ajustes de espaciado */
     .block-container {
-        padding-top: 2rem; /* Menos espacio arriba del todo */
+        padding-top: 2rem;
     }
     
-    /* Recuadro de resultados */
+    /* Caja de Resultados */
     .resultado-box {
         background-color: #f8f9fa;
         padding: 15px;
         border-radius: 10px;
-        border-left: 5px solid #FF4B4B;
+        border-left: 5px solid #1d6e5d; /* Borde verde también */
         margin-top: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Color de textos generales dentro de la caja de resultado */
+    .resultado-box h3, .resultado-box p, .resultado-box b {
+        color: #212529 !important; /* Mantenemos gris oscuro para lectura, verde para el borde */
     }
     </style>
     """, unsafe_allow_html=True)
@@ -76,18 +99,18 @@ if 'lat' not in st.session_state:
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
 
-# Título más compacto
+# Título Principal
 st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
-col_mapa, col_datos = st.columns([3, 1.8], gap="large") # Ajusté la proporción para dar aire
+col_mapa, col_datos = st.columns([3, 1.8], gap="large")
 
 with col_mapa:
-    # Selector de estilo de mapa y zona en la misma línea visual
+    # Selector de estilo y zona
     c1, c2 = st.columns([1, 1])
     with c1:
-        estilo_mapa = st.radio("Estilo de Mapa", ["Calles (Estándar)", "Claro (Minimalista)"], horizontal=True)
+        # Usamos label_visibility="collapsed" en el radio para que quede más limpio
+        estilo_mapa = st.radio("Estilo de Mapa", ["Calles", "Claro"], horizontal=True, label_visibility="collapsed")
     with c2:
-        # Selector de zonas simplificado
         barrios = {
             "Centrar en...": (None, None),
             "Playa Grande": (-38.0169, -57.5309),
@@ -99,7 +122,7 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # Lógica de movimiento del mapa
+    # Movimiento del mapa
     start_lat = st.session_state['lat']
     start_lon = st.session_state['lon']
     
@@ -111,45 +134,42 @@ with col_mapa:
             st.session_state['lat'] = nueva_lat
             st.session_state['lon'] = nueva_lon
 
-    # Configuración del tile (capa) del mapa
-    tile_layer = "CartoDB positron" if estilo_mapa == "Claro (Minimalista)" else "OpenStreetMap"
+    tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
     m = folium.Map(location=[start_lat, start_lon], zoom_start=14, tiles=tile_layer)
     
+    # Marcador rojo (para que contraste bien con el verde de la app)
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
         popup="Propiedad",
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
 
-    # Mapa un poco más alto para compensar el formulario
-    mapa_output = st_folium(m, height=550, use_container_width=True)
+    mapa_output = st_folium(m, height=480, use_container_width=True)
 
     if mapa_output['last_clicked']:
         st.session_state['lat'] = mapa_output['last_clicked']['lat']
         st.session_state['lon'] = mapa_output['last_clicked']['lng']
-        if st.button("📍 Confirmar nueva ubicación", key="btn_confirm"):
+        if st.button("📍 Confirmar ubicación", key="btn_confirm"):
              st.rerun()
 
 with col_datos:
-    # Eliminamos el subheader grande para ganar espacio vertical
-    st.markdown("#### Características")
+    st.markdown("### Características")
     
-    # Inputs más compactos
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
     c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
-        st.write("") # Espaciador para alinear checkbox
+        st.write("") 
         st.write("") 
         cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
     banos = st.slider("Baños", 1, 4, 1)
 
-    st.markdown("---") # Separador sutil
+    st.markdown("---")
 
     if st.button("CALCULAR VALOR", use_container_width=True):
         
@@ -171,16 +191,14 @@ with col_datos:
         precio = modelo.predict(input_data)[0]
         m2 = precio / metros
         
-        # --- RESULTADO COMPACTO ---
-        # Usamos HTML para forzar el diseño exacto que querés al final del mapa
+        # --- RESULTADO ---
         st.markdown(f"""
         <div class="resultado-box">
-            <h3 style="margin-bottom: 0px; color: #333;">U$S {precio:,.0f}</h3>
-            <p style="color: #666; margin-bottom: 5px;">Precio Estimado de Mercado</p>
-            <hr style="margin: 5px 0;">
-            <p style="font-size: 14px; margin-bottom: 0;">Valor por m²: <b>U$S {m2:,.0f}</b></p>
+            <h3 style="margin-bottom: 0px; color: #333 !important;">U$S {precio:,.0f}</h3>
+            <p style="color: #666 !important; margin-bottom: 5px;">Precio Estimado de Mercado</p>
+            <hr style="margin: 5px 0; border-top: 1px solid #ddd;">
+            <p style="font-size: 14px; margin-bottom: 0; color: #666 !important;">Valor por m²: <b>U$S {m2:,.0f}</b></p>
         </div>
         """, unsafe_allow_html=True)
     else:
-        # Espacio vacío para mantener estructura si no hay cálculo
         st.info("👆 Ajustá la ubicación y características para tazar.")
