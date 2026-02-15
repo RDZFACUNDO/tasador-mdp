@@ -46,7 +46,7 @@ st.markdown("""
     /* --- CORRECCIÓN DE "COSAS QUE NO SE VEN" --- */
     /* Las opciones dentro de la lista desplegable deben ser OSCURAS */
     ul[data-baseweb="menu"] li span {
-        color: #212529 !important; /* Texto oscuro para la lista */
+        color: #1d6e5d !important; /* Texto oscuro para la lista */
     }
     ul[data-baseweb="menu"] {
         background-color: #ffffff !important; /* Fondo blanco para la lista */
@@ -56,7 +56,7 @@ st.markdown("""
     /* La bolita del slider */
     div[data-baseweb="slider"] div[role="slider"] {
         background-color: #1d6e5d !important;
-        border: 2px solid #145244 !important;
+        border: 2px solid #1d6e5d !important;
     }
     /* La barra de progreso (track lleno) */
     div[data-baseweb="slider"] > div > div > div > div {
@@ -68,21 +68,40 @@ st.markdown("""
     }
 
     /* 5. INPUT DE NÚMERO (Metros) */
+/* El contenedor y bordes */
     div[data-baseweb="input"] > div {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
+        color: white !important;
     }
+    /* El campo de texto donde va el número */
     input[data-baseweb="input"] {
+        background-color: #1d6e5d !important;
         color: white !important; 
     }
+    /* Los botones de +/- */
     div[data-baseweb="input"] button {
         color: white !important;
     }
+    /* Las flechitas dentro de los botones */
+    div[data-baseweb="input"] button svg {
+        fill: white !important;
+    }
 
     /* 6. TEXTO DE RADIO BUTTONS (Calles/Claro) */
+    /* El Texto */
     div[data-testid="stRadio"] label p {
         color: #1d6e5d !important;
         font-weight: bold;
+    }
+    /* El Círculo exterior */
+    div[data-baseweb="radio"] > div:first-child {
+        border-color: #1d6e5d !important;
+        background-color: white !important; /* Fondo blanco si no está seleccionado */
+    }
+    /* El Punto central cuando está seleccionado */
+    div[data-baseweb="radio"] > div:first-child > div {
+        background-color: #1d6e5d !important;
     }
 
     /* 7. BOTÓN DE CALCULAR */
