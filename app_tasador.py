@@ -133,11 +133,16 @@ if 'lat' not in st.session_state:
     st.session_state['lat'] = -38.0000
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
+    
 # Variables para guardar el resultado y que no desaparezca
 if 'precio_calculado' not in st.session_state:
     st.session_state['precio_calculado'] = None
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
+
+# Variable para controlar si el usuario movió el mapa manualmente
+if 'zoom_level' not in st.session_state:
+    st.session_state['zoom_level'] = 14
 
 st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
@@ -159,40 +164,55 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # Si cambia el selector de zona, actualizamos
+    # Lógica de cambio de Zona (Solo si el usuario elige algo nuevo en el menú)
     if zona_elegida != "Centrar en...":
         nueva_lat, nueva_lon = barrios[zona_elegida]
         if nueva_lat:
-             # Solo actualizamos si es diferente para no bloquear el movimiento manual
-             if nueva_lat != st.session_state['lat'] or nueva_lon != st.session_state['lon']:
+             # Verificamos si realmente cambió la zona para no pisar el movimiento manual
+             # Usamos una variable auxiliar 'zona_actual' para detectar cambios reales del dropdown
+             if 'zona_actual' not in st.session_state or st.session_state['zona_actual'] != zona_elegida:
                 st.session_state['lat'] = nueva_lat
                 st.session_state['lon'] = nueva_lon
+                st.session_state['zona_actual'] = zona_elegida
+                st.session_state['zoom_level'] = 15 # Acercamos un poco al elegir barrio
                 st.rerun()
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
-    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, tiles=tile_layer)
+    # CREACIÓN DEL MAPA
+    # Usamos st.session_state para mantener la posición
+    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], 
+                   zoom_start=st.session_state['zoom_level'], 
+                   tiles=tile_layer)
     
+    # Marcador rojo en la posición actual
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
-        popup="Propiedad",
+        popup="Ubicación elegida",
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
 
-    # El mapa devuelve datos cada vez que interactúas
+    # Agregamos la capacidad de hacer clic
+    m.add_child(folium.LatLngPopup())
+
+    # Renderizamos el mapa
     mapa_output = st_folium(m, height=480, use_container_width=True)
 
-    # --- LÓGICA DE CLIC AUTOMÁTICO (Sin botón Confirmar) ---
+    # --- LÓGICA DE CLIC (CRÍTICO: NO USAR RERUN) ---
     if mapa_output['last_clicked']:
         click_lat = mapa_output['last_clicked']['lat']
         click_lon = mapa_output['last_clicked']['lng']
         
-        # Si el clic es diferente a lo que ya tenemos guardado, actualizamos y recargamos
-        # Usamos una pequeña tolerancia para evitar recargas infinitas por decimales
-        if abs(click_lat - st.session_state['lat']) > 0.0001 or abs(click_lon - st.session_state['lon']) > 0.0001:
+        # Si las coordenadas cambiaron respecto a lo que tenemos guardado
+        if abs(click_lat - st.session_state['lat']) > 0.00001 or abs(click_lon - st.session_state['lon']) > 0.00001:
             st.session_state['lat'] = click_lat
             st.session_state['lon'] = click_lon
-            st.rerun() # Esto recarga la página solo para actualizar el marcador rojo
+            # NO HACEMOS st.rerun() AQUÍ. 
+            # Al no recargar, el mapa no se centra de golpe, pero la variable 'lat' y 'lon' 
+            # ya se actualizó en memoria para el cálculo.
+            
+            # Solo mostramos un mensaje sutil de confirmación
+            st.toast("📍 Ubicación actualizada", icon="✅")
     
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
@@ -219,6 +239,7 @@ with col_datos:
     if st.button("CALCULAR VALOR", use_container_width=True):
         input_data = pd.DataFrame(0, index=[0], columns=cols_entrenamiento)
         input_data['metros'] = metros
+        # Usamos las coordenadas que están en memoria (ya sea por menú o por clic)
         input_data['lat'] = st.session_state['lat']
         input_data['lon'] = st.session_state['lon']
         input_data['ambientes'] = ambientes
@@ -234,11 +255,11 @@ with col_datos:
         precio = modelo.predict(input_data)[0]
         m2 = precio / metros
         
-        # GUARDAMOS EL RESULTADO EN LA MEMORIA DE LA SESIÓN
+        # GUARDAMOS EL RESULTADO
         st.session_state['precio_calculado'] = precio
         st.session_state['m2_calculado'] = m2
 
-    # --- MOSTRAR RESULTADO (Si existe en memoria) ---
+    # --- MOSTRAR RESULTADO ---
     if st.session_state['precio_calculado'] is not None:
         precio_final = st.session_state['precio_calculado']
         m2_final = st.session_state['m2_calculado']
