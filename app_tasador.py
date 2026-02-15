@@ -25,7 +25,7 @@ st.markdown("""
         background-color: #1d6e5d !important;
         border: none !important;
         height: 3em;
-        margin-top: 15px;
+        margin-top: 10px;
     }
     div[data-testid="stButton"] button p {
         color: white !important;
