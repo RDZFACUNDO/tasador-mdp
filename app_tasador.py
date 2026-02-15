@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS CORREGIDOS ---
+# --- ESTILOS CSS CORREGIDOS Y REFORZADOS ---
 st.markdown("""
     <style>
     /* 1. Fondo blanco general */
@@ -28,39 +28,38 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* 3. MENÚS DESPLEGABLES (Selectbox) - LA CAJA PRINCIPAL */
+    /* 3. MENÚS DESPLEGABLES (Selectbox) */
     div[data-baseweb="select"] > div {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
         color: white !important;
     }
-    /* Texto de la opción seleccionada (blanco) */
     div[data-baseweb="select"] > div span {
         color: white !important; 
     }
-    /* Flechita del menú (blanca) */
     div[data-baseweb="select"] svg {
         fill: white !important;
     }
-    
-    /* --- CORRECCIÓN DE "COSAS QUE NO SE VEN" --- */
-    /* Las opciones dentro de la lista desplegable deben ser OSCURAS */
+    /* Opciones del menú (lista desplegable) */
     ul[data-baseweb="menu"] li span {
-        color: #1d6e5d !important; /* Texto oscuro para la lista */
+        color: #212529 !important; 
     }
     ul[data-baseweb="menu"] {
-        background-color: #ffffff !important; /* Fondo blanco para la lista */
+        background-color: #ffffff !important; 
     }
     
     /* 4. SLIDERS (Slicers) - FUERZA BRUTA VERDE */
     /* La bolita del slider */
     div[data-baseweb="slider"] div[role="slider"] {
         background-color: #1d6e5d !important;
-        border: 2px solid #1d6e5d !important;
+        border: 2px solid #145244 !important;
     }
-    /* La barra de progreso (track lleno) */
-    div[data-baseweb="slider"] > div > div > div > div {
-        background-color: #1d6e5d !important;
+    /* La barra de progreso (track lleno) que solía ser naranja */
+    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75)"] {
+        background-color: #1d6e5d !important; 
+    }
+    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75);"] {
+        background-color: #1d6e5d !important; 
     }
     /* El texto de los números del slider */
     div[data-testid="stSliderTickBar"] + div {
@@ -68,43 +67,64 @@ st.markdown("""
     }
 
     /* 5. INPUT DE NÚMERO (Metros) */
-/* El contenedor y bordes */
     div[data-baseweb="input"] > div {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
         color: white !important;
     }
-    /* El campo de texto donde va el número */
     input[data-baseweb="input"] {
         background-color: #1d6e5d !important;
         color: white !important; 
     }
-    /* Los botones de +/- */
     div[data-baseweb="input"] button {
         color: white !important;
     }
-    /* Las flechitas dentro de los botones */
     div[data-baseweb="input"] button svg {
         fill: white !important;
     }
 
-    /* 6. TEXTO DE RADIO BUTTONS (Calles/Claro) */
-    /* El Texto */
+    /* 6. RADIO BUTTONS (Selector de Mapa) - VERDES */
     div[data-testid="stRadio"] label p {
         color: #1d6e5d !important;
         font-weight: bold;
     }
-    /* El Círculo exterior */
+    /* El Círculo exterior (sin seleccionar) */
     div[data-baseweb="radio"] > div:first-child {
         border-color: #1d6e5d !important;
-        background-color: white !important; /* Fondo blanco si no está seleccionado */
+        background-color: #ffffff !important;
     }
-    /* El Punto central cuando está seleccionado */
+    /* El Círculo cuando está seleccionado (relleno y borde) */
+    div[data-baseweb="radio"] [aria-checked="true"] > div:first-child {
+        border-color: #1d6e5d !important;
+        background-color: #1d6e5d !important;
+    }
+    /* El puntito blanco interno cuando está seleccionado */
+    div[data-baseweb="radio"] [aria-checked="true"] > div:first-child > div {
+        background-color: #ffffff !important;
+    }
+    /* En algunos navegadores el puntito es el div hijo directo, forzamos verde al fondo */
     div[data-baseweb="radio"] > div:first-child > div {
         background-color: #1d6e5d !important;
     }
 
-    /* 7. BOTÓN DE CALCULAR */
+    /* 7. CHECKBOX (Cochera) - VERDE */
+    /* El texto del label */
+    label[data-baseweb="checkbox"] p {
+        color: #1d6e5d !important;
+        font-weight: bold;
+    }
+    /* El cuadrado del checkbox cuando está ACTIVO */
+    span[data-baseweb="checkbox"][aria-checked="true"] > div:first-child {
+        background-color: #1d6e5d !important;
+        border-color: #1d6e5d !important;
+    }
+    /* El cuadrado del checkbox cuando está INACTIVO */
+    span[data-baseweb="checkbox"][aria-checked="false"] > div:first-child {
+        background-color: #ffffff !important;
+        border-color: #1d6e5d !important;
+    }
+
+    /* 8. BOTÓN DE CALCULAR */
     .stButton>button {
         width: 100%;
         background-color: #1d6e5d;
@@ -134,7 +154,6 @@ st.markdown("""
         color: #212529 !important;
     }
     
-    /* Ajuste de espaciado */
     .block-container {
         padding-top: 2rem;
     }
@@ -166,7 +185,6 @@ st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
 col_mapa, col_datos = st.columns([3, 1.8], gap="large")
 
-# --- COLUMNA IZQUIERDA: MAPA ---
 with col_mapa:
     c1, c2 = st.columns([1, 1])
     with c1:
@@ -183,7 +201,6 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # Lógica de movimiento
     start_lat = st.session_state['lat']
     start_lon = st.session_state['lon']
     
@@ -213,11 +230,9 @@ with col_mapa:
         if st.button("📍 Confirmar ubicación", key="btn_confirm"):
              st.rerun()
     
-    # --- MENSAJE DEBAJO DEL MAPA ---
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
 
-# --- COLUMNA DERECHA: DATOS ---
 with col_datos:
     st.markdown("### Características")
     
@@ -237,8 +252,6 @@ with col_datos:
     st.markdown("---")
 
     if st.button("CALCULAR VALOR", use_container_width=True):
-        
-        # --- CÁLCULO ---
         input_data = pd.DataFrame(0, index=[0], columns=cols_entrenamiento)
         input_data['metros'] = metros
         input_data['lat'] = st.session_state['lat']
@@ -256,7 +269,6 @@ with col_datos:
         precio = modelo.predict(input_data)[0]
         m2 = precio / metros
         
-        # --- RESULTADO ---
         st.markdown(f"""
         <div class="resultado-box">
             <h3 style="margin-bottom: 0px; color: #333 !important;">U$S {precio:,.0f}</h3>
