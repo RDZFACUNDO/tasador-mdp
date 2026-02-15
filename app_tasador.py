@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS PERSONALIZADOS ---
+# --- ESTILOS CSS CORREGIDOS ---
 st.markdown("""
     <style>
     /* 1. Fondo blanco general */
@@ -28,61 +28,64 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* 3. PERSONALIZACIÓN DE MENÚS DESPLEGABLES (Selectbox) */
-    /* El recuadro del menú */
+    /* 3. MENÚS DESPLEGABLES (Selectbox) - LA CAJA PRINCIPAL */
     div[data-baseweb="select"] > div {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
         color: white !important;
     }
-    /* El texto dentro del menú seleccionado */
-    div[data-baseweb="select"] span {
+    /* Texto de la opción seleccionada (blanco) */
+    div[data-baseweb="select"] > div span {
         color: white !important; 
     }
-    /* La flechita del menú */
+    /* Flechita del menú (blanca) */
     div[data-baseweb="select"] svg {
         fill: white !important;
     }
-    /* El menú desplegable (opciones) - Este es difícil de cambiar en Streamlit Cloud, 
-       pero intentamos forzar el hover */
-    li[aria-selected="true"] {
-        background-color: #1d6e5d !important;
-        color: white !important;
+    
+    /* --- CORRECCIÓN DE "COSAS QUE NO SE VEN" --- */
+    /* Las opciones dentro de la lista desplegable deben ser OSCURAS */
+    ul[data-baseweb="menu"] li span {
+        color: #212529 !important; /* Texto oscuro para la lista */
     }
-
-    /* 4. PERSONALIZACIÓN DE SLIDERS (Slicer) */
+    ul[data-baseweb="menu"] {
+        background-color: #ffffff !important; /* Fondo blanco para la lista */
+    }
+    
+    /* 4. SLIDERS (Slicers) - FUERZA BRUTA VERDE */
     /* La bolita del slider */
     div[data-baseweb="slider"] div[role="slider"] {
         background-color: #1d6e5d !important;
         border: 2px solid #145244 !important;
     }
-    /* La barra llena del slider */
-    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75)"] {
-        background-color: #1d6e5d !important; /* Reemplaza el rojo por defecto */
-    }
-    /* Para asegurarnos que la barra se vea verde */
+    /* La barra de progreso (track lleno) */
     div[data-baseweb="slider"] > div > div > div > div {
         background-color: #1d6e5d !important;
     }
-    /* Los números del slider (min/max/actual) */
+    /* El texto de los números del slider */
     div[data-testid="stSliderTickBar"] + div {
         color: #1d6e5d !important;
     }
-    
-    /* 5. INPUT DE NÚMERO (Metros) - Para que combine */
+
+    /* 5. INPUT DE NÚMERO (Metros) */
     div[data-baseweb="input"] > div {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
     }
     input[data-baseweb="input"] {
-        color: white !important; /* Texto blanco */
+        color: white !important; 
     }
-    /* Controles +/- del input */
     div[data-baseweb="input"] button {
         color: white !important;
     }
 
-    /* 6. Botón de Calcular */
+    /* 6. TEXTO DE RADIO BUTTONS (Calles/Claro) */
+    div[data-testid="stRadio"] label p {
+        color: #1d6e5d !important;
+        font-weight: bold;
+    }
+
+    /* 7. BOTÓN DE CALCULAR */
     .stButton>button {
         width: 100%;
         background-color: #1d6e5d;
@@ -112,7 +115,7 @@ st.markdown("""
         color: #212529 !important;
     }
     
-    /* Ajuste de espaciado general */
+    /* Ajuste de espaciado */
     .block-container {
         padding-top: 2rem;
     }
@@ -144,8 +147,8 @@ st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
 col_mapa, col_datos = st.columns([3, 1.8], gap="large")
 
+# --- COLUMNA IZQUIERDA: MAPA ---
 with col_mapa:
-    # --- BARRA SUPERIOR DEL MAPA ---
     c1, c2 = st.columns([1, 1])
     with c1:
         estilo_mapa = st.radio("Estilo de Mapa", ["Calles", "Claro"], horizontal=True, label_visibility="collapsed")
@@ -191,11 +194,11 @@ with col_mapa:
         if st.button("📍 Confirmar ubicación", key="btn_confirm"):
              st.rerun()
     
-    # --- MENSAJE REUBICADO ---
-    # Ahora está fuera del mapa, pero dentro de la columna izquierda (abajo del mapa)
+    # --- MENSAJE DEBAJO DEL MAPA ---
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
 
+# --- COLUMNA DERECHA: DATOS ---
 with col_datos:
     st.markdown("### Características")
     
@@ -203,7 +206,6 @@ with col_datos:
     
     c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
-        # Nota: Al input de metros también le puse el estilo verde para que combine con el selectbox
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
         st.write("") 
