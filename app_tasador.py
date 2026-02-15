@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS (Mantenemos tu estilo verde #1d6e5d) ---
+# --- ESTILOS CSS ---
 st.markdown("""
     <style>
     /* 1. TEXTOS GENERALES EN VERDE */
@@ -133,11 +133,17 @@ if 'lat' not in st.session_state:
     st.session_state['lat'] = -38.0000
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
-# Variables para guardar el resultado y que no desaparezca
+    
+# Variables para guardar el resultado
 if 'precio_calculado' not in st.session_state:
     st.session_state['precio_calculado'] = None
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
+
+# --- NUEVA VARIABLE: MEMORIA DEL MENÚ ---
+# Esto es lo que nos permitirá saber si cambiaste el menú o si solo cliqueaste el mapa
+if 'last_zona' not in st.session_state:
+    st.session_state['last_zona'] = "Centrar en..."
 
 st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
 
@@ -159,15 +165,17 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
-    # Si cambia el selector de zona, actualizamos
-    if zona_elegida != "Centrar en...":
-        nueva_lat, nueva_lon = barrios[zona_elegida]
-        if nueva_lat:
-             # Solo actualizamos si es diferente para no bloquear el movimiento manual
-             if nueva_lat != st.session_state['lat'] or nueva_lon != st.session_state['lon']:
+    # --- LÓGICA CORREGIDA ---
+    # Solo movemos el mapa si el menú CAMBIÓ respecto a la última vez
+    if zona_elegida != st.session_state['last_zona']:
+        st.session_state['last_zona'] = zona_elegida # Actualizamos la memoria
+        
+        if zona_elegida != "Centrar en...":
+            nueva_lat, nueva_lon = barrios[zona_elegida]
+            if nueva_lat:
                 st.session_state['lat'] = nueva_lat
                 st.session_state['lon'] = nueva_lon
-                st.rerun()
+                st.rerun() # Recargamos para viajar al barrio nuevo
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
@@ -182,17 +190,16 @@ with col_mapa:
     # El mapa devuelve datos cada vez que interactúas
     mapa_output = st_folium(m, height=480, use_container_width=True)
 
-    # --- LÓGICA DE CLIC AUTOMÁTICO (Sin botón Confirmar) ---
+    # --- LÓGICA DE CLIC EN EL MAPA ---
     if mapa_output['last_clicked']:
         click_lat = mapa_output['last_clicked']['lat']
         click_lon = mapa_output['last_clicked']['lng']
         
-        # Si el clic es diferente a lo que ya tenemos guardado, actualizamos y recargamos
-        # Usamos una pequeña tolerancia para evitar recargas infinitas por decimales
+        # Si cliquearon en un lugar nuevo
         if abs(click_lat - st.session_state['lat']) > 0.0001 or abs(click_lon - st.session_state['lon']) > 0.0001:
             st.session_state['lat'] = click_lat
             st.session_state['lon'] = click_lon
-            st.rerun() # Esto recarga la página solo para actualizar el marcador rojo
+            st.rerun() # Recargamos para mover el pin rojo
     
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
