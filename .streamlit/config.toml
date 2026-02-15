@@ -2,3 +2,10 @@
 enableCORS = false
 enableXsrfProtection = false
 frameAncestors = ["*"]
+
+[theme]
+primaryColor = "#1d6e5d"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
