@@ -8,52 +8,108 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS CORREGIDOS ---
 st.markdown("""
     <style>
-    /* 1. FORZAR COLOR DE TEXTOS A VERDE */
-    h2, h3, h4, strong, label, p {
+    /* 1. TEXTOS GENERALES EN VERDE */
+    /* Pintamos títulos y etiquetas de verde */
+    h1, h2, h3, h4, h5, h6, strong, label {
+        color: #1d6e5d !important;
+    }
+    /* Pintamos los párrafos (p) de verde, PERO NO los que están dentro de un botón */
+    p:not(.stButton p) {
         color: #1d6e5d !important;
     }
     
-    /* 2. ARREGLO DE COCHERA (Checkbox) */
-    /* Aseguramos que el texto se vea */
-    label[data-baseweb="checkbox"] {
+    /* 2. BOTÓN CALCULAR (SOLUCIÓN DEL TEXTO INVISIBLE) */
+    div[data-testid="stButton"] button {
+        width: 100%;
+        background-color: #1d6e5d !important;
+        border: none !important;
+        height: 3em;
+        margin-top: 15px;
+    }
+    /* Forzamos a que el texto DENTRO del botón sea BLANCO */
+    div[data-testid="stButton"] button p {
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 16px !important;
+    }
+    /* Efecto Hover (al pasar el mouse) */
+    div[data-testid="stButton"] button:hover {
+        background-color: #145244 !important;
+        color: white !important;
+    }
+
+    /* 3. CHECKBOX (Cochera) */
+    /* El texto "Cochera" */
+    label[data-baseweb="checkbox"] p {
         color: #1d6e5d !important;
     }
-    /* El cuadradito del checkbox */
-    span[data-baseweb="checkbox"] div {
+    /* El cuadrado cuando está MARCADO (Fondo verde, borde verde) */
+    span[data-baseweb="checkbox"][aria-checked="true"] div:first-child {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
     }
-    /* El tilde interno */
+    /* El cuadrado cuando NO está marcado (Fondo blanco, borde verde) */
+    span[data-baseweb="checkbox"][aria-checked="false"] div:first-child {
+        background-color: #ffffff !important;
+        border-color: #1d6e5d !important;
+    }
+    /* El tilde (check) interno */
     span[data-baseweb="checkbox"] svg {
         fill: white !important;
     }
 
-    /* 3. INPUT NUMÉRICO (El bloque negro de +/-) */
-    /* Fondo del input completo */
+    /* 4. INPUT DE NÚMERO (Metros) */
+    /* Fondo verde oscuro y texto blanco */
     div[data-baseweb="input"] {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
         border-radius: 5px;
-        color: white !important;
     }
-    /* El número escrito */
     input[data-baseweb="input"] {
         background-color: #1d6e5d !important;
-        color: white !important;
+        color: white !important; 
     }
-    /* Los botones de +/- (que eran negros) */
+    /* Botones +/- */
     div[data-baseweb="base-input"] button {
-        background-color: #145244 !important; /* Un verde un poquito mas oscuro para diferenciar */
+        background-color: #145244 !important;
         color: white !important;
     }
     div[data-baseweb="base-input"] button svg {
         fill: white !important;
     }
 
-    /* 4. MENÚS DESPLEGABLES (Selectbox) */
+    /* 5. SLIDERS (Ambientes/Baños) */
+    div[data-baseweb="slider"] div[role="slider"] {
+        background-color: #1d6e5d !important;
+        box-shadow: none !important;
+    }
+    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75)"] {
+        background-color: #1d6e5d !important;
+    }
+    div[data-baseweb="slider"] > div > div > div > div {
+        background-color: #1d6e5d !important;
+    }
+    div[data-testid="stSliderTickBar"] + div {
+        color: #1d6e5d !important;
+    }
+
+    /* 6. SELECTOR DE MAPA (Radio) */
+    div[data-testid="stRadio"] label p {
+        color: #1d6e5d !important;
+        font-weight: bold;
+    }
+    div[data-baseweb="radio"] [aria-checked="true"] > div:first-child {
+        background-color: #1d6e5d !important;
+        border-color: #1d6e5d !important;
+    }
+    div[data-baseweb="radio"] > div:first-child {
+        border-color: #1d6e5d !important;
+    }
+
+    /* 7. MENÚS DESPLEGABLES (Selectbox) */
     div[data-baseweb="select"] > div {
         background-color: #1d6e5d !important;
         color: white !important;
@@ -65,8 +121,6 @@ st.markdown("""
     div[data-baseweb="select"] svg {
         fill: white !important;
     }
-    
-    /* Arreglo para que las opciones de la lista sean legibles (fondo blanco, letra negra) */
     ul[data-baseweb="menu"] {
         background-color: white !important;
     }
@@ -74,23 +128,7 @@ st.markdown("""
         color: #333 !important;
     }
 
-    /* 8. BOTÓN CALCULAR */
-    .stButton>button {
-        width: 100%;
-        background-color: #1d6e5d;
-        color: white !important;
-        height: 3em;
-        border-radius: 8px;
-        border: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        margin-top: 15px;
-    }
-    .stButton>button:hover {
-        background-color: #145244;
-    }
-
-    /* 6. RESULTADOS */
+    /* 8. RESULTADOS */
     .resultado-box {
         background-color: #f8f9fa;
         padding: 15px;
@@ -98,12 +136,10 @@ st.markdown("""
         border-left: 5px solid #1d6e5d;
         margin-top: 10px;
     }
-    /* Forzamos negro para el texto del resultado para que se lea bien sobre gris claro */
     .resultado-box h3, .resultado-box p, .resultado-box b {
-        color: #333 !important;
+        color: #333 !important; /* Texto oscuro para leer bien */
     }
 
-    /* Ajuste de márgenes */
     .block-container {
         padding-top: 2rem;
     }
@@ -188,14 +224,13 @@ with col_datos:
     
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
-    # Input de metros y Checkbox cochera
     c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
         st.write("") 
         st.write("") 
-        cochera = st.checkbox("Cochera") # Ahora debería ser visible
+        cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
     banos = st.slider("Baños", 1, 4, 1)
