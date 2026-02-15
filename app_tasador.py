@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Tasador Inmobiliario MDP", page_icon="🏢", layout="wide")
 
-# --- ESTILOS CSS CORREGIDOS Y REFORZADOS ---
+# --- ESTILOS CSS AGRESIVOS (TODO VERDE) ---
 st.markdown("""
     <style>
     /* 1. Fondo blanco general */
@@ -19,8 +19,8 @@ st.markdown("""
         background-color: #ffffff;
     }
     
-    /* 2. Títulos y Etiquetas en VERDE (#1d6e5d) */
-    h2, h3, h4 {
+    /* 2. Textos y Títulos en VERDE */
+    h2, h3, h4, strong {
         color: #1d6e5d !important;
     }
     .stSelectbox label, .stSlider label, .stNumberInput label, .stCheckbox label, .stRadio label {
@@ -40,91 +40,93 @@ st.markdown("""
     div[data-baseweb="select"] svg {
         fill: white !important;
     }
-    /* Opciones del menú (lista desplegable) */
-    ul[data-baseweb="menu"] li span {
-        color: #212529 !important; 
-    }
     ul[data-baseweb="menu"] {
         background-color: #ffffff !important; 
     }
+    ul[data-baseweb="menu"] li span {
+        color: #212529 !important; 
+    }
     
-    /* 4. SLIDERS (Slicers) - FUERZA BRUTA VERDE */
-    /* La bolita del slider */
+    /* 4. SLIDERS (Barras rojas a VERDES) */
+    /* La bolita que arrastras */
     div[data-baseweb="slider"] div[role="slider"] {
         background-color: #1d6e5d !important;
-        border: 2px solid #145244 !important;
+        box-shadow: none !important;
     }
-    /* La barra de progreso (track lleno) que solía ser naranja */
+    /* La barra llena (el track) */
     div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75)"] {
-        background-color: #1d6e5d !important; 
+        background-color: #1d6e5d !important;
     }
-    div[data-baseweb="slider"] div[style*="background-color: rgb(255, 75, 75);"] {
-        background-color: #1d6e5d !important; 
+    /* Regla general para cualquier barra de progreso en el slider */
+    div[data-baseweb="slider"] > div > div > div > div {
+        background-color: #1d6e5d !important;
     }
-    /* El texto de los números del slider */
+    /* Los numeritos min/max */
     div[data-testid="stSliderTickBar"] + div {
         color: #1d6e5d !important;
     }
 
-    /* 5. INPUT DE NÚMERO (Metros) */
-    div[data-baseweb="input"] > div {
-        background-color: #1d6e5d !important;
-        border-color: #1d6e5d !important;
-        color: white !important;
-    }
+    /* 5. INPUT DE NÚMERO (+ y -) */
+    /* El campo de texto */
     input[data-baseweb="input"] {
         background-color: #1d6e5d !important;
         color: white !important; 
     }
+    /* El contenedor principal del input */
+    div[data-baseweb="input"] {
+        background-color: #1d6e5d !important;
+        border-color: #1d6e5d !important;
+        color: white !important;
+    }
+    /* LOS BOTONES + Y - (El bloque negro de la derecha) */
+    div[data-baseweb="base-input"] {
+        background-color: #1d6e5d !important;
+    }
+    /* Forzamos el fondo verde en los botones específicos */
     div[data-baseweb="input"] button {
+        background-color: #1d6e5d !important;
         color: white !important;
     }
     div[data-baseweb="input"] button svg {
         fill: white !important;
     }
 
-    /* 6. RADIO BUTTONS (Selector de Mapa) - VERDES */
+    /* 6. RADIO BUTTONS (Selector Mapa) */
     div[data-testid="stRadio"] label p {
         color: #1d6e5d !important;
         font-weight: bold;
     }
-    /* El Círculo exterior (sin seleccionar) */
+    /* El círculo exterior */
     div[data-baseweb="radio"] > div:first-child {
         border-color: #1d6e5d !important;
-        background-color: #ffffff !important;
     }
-    /* El Círculo cuando está seleccionado (relleno y borde) */
+    /* El círculo relleno cuando se selecciona */
     div[data-baseweb="radio"] [aria-checked="true"] > div:first-child {
-        border-color: #1d6e5d !important;
         background-color: #1d6e5d !important;
+        border-color: #1d6e5d !important;
     }
-    /* El puntito blanco interno cuando está seleccionado */
+    /* El punto interno blanco */
     div[data-baseweb="radio"] [aria-checked="true"] > div:first-child > div {
         background-color: #ffffff !important;
     }
-    /* En algunos navegadores el puntito es el div hijo directo, forzamos verde al fondo */
-    div[data-baseweb="radio"] > div:first-child > div {
-        background-color: #1d6e5d !important;
-    }
 
-    /* 7. CHECKBOX (Cochera) - VERDE */
-    /* El texto del label */
-    label[data-baseweb="checkbox"] p {
-        color: #1d6e5d !important;
-        font-weight: bold;
-    }
-    /* El cuadrado del checkbox cuando está ACTIVO */
+    /* 7. CHECKBOX (Cochera) */
+    /* El cuadradito cuando está MARCADO */
     span[data-baseweb="checkbox"][aria-checked="true"] > div:first-child {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
     }
-    /* El cuadrado del checkbox cuando está INACTIVO */
+    /* El tilde (check) */
+    span[data-baseweb="checkbox"][aria-checked="true"] svg {
+        fill: white !important;
+    }
+    /* El cuadradito cuando NO está marcado (borde verde) */
     span[data-baseweb="checkbox"][aria-checked="false"] > div:first-child {
         background-color: #ffffff !important;
         border-color: #1d6e5d !important;
     }
 
-    /* 8. BOTÓN DE CALCULAR */
+    /* 8. BOTÓN CALCULAR */
     .stButton>button {
         width: 100%;
         background-color: #1d6e5d;
@@ -138,10 +140,9 @@ st.markdown("""
     }
     .stButton>button:hover {
         background-color: #145244;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    /* Caja de Resultados */
+    /* CAJA DE RESULTADOS */
     .resultado-box {
         background-color: #f8f9fa;
         padding: 15px;
