@@ -219,6 +219,7 @@ with col_datos:
         # Espacio manual reducido para alinear checkbox
         st.write("") 
         st.write("") 
+        st.write("") 
         cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
