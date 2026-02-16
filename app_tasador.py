@@ -106,7 +106,7 @@ st.markdown("""
     /* 8. RESULTADOS */
     .resultado-box {
         background-color: #f8f9fa;
-        padding: 5px 15px;
+        padding: 10px;
         border-radius: 10px;
         border-left: 5px solid #1d6e5d;
         margin-top: 0px;
