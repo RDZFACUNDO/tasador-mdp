@@ -267,23 +267,20 @@ with col_datos:
 <div class="resultado-box" style="text-align: center;">
     <p style="margin-bottom: 5px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>
     <h2 style="margin: 0; color: #1d6e5d !important; font-size: 32px;">U$S {p_final:,.0f}</h2>
-    <p style="font-size: 12px; color: #888 !important; margin-bottom: 15px;">~ U$S {m2_final:,.0f} / m²</p>
-    <hr style="margin: 10px 0; border-top: 1px solid #ddd;">
-    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+    <p style="font-size: 12px; color: #888 !important; margin-bottom: 10px;">~ U$S {m2_final:,.0f} / m²</p>
+    <hr style="margin: 5px 0; border-top: 1px solid #ddd;">
+    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
         <div style="width: 33%; border-right: 1px solid #eee;">
-            <span style="font-size: 12px; color: #e67e22 !important; font-weight: bold;">OPORTUNIDAD</span><br>
+            <span style="font-size: 12px; color: #e67e22 !important; font-weight: bold;">Límite Inferior</span><br>
             <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_min:,.0f}</span><br>
-            <span style="font-size: 10px; color: #999 !important;">A refaccionar</span>
         </div>
         <div style="width: 33%;">
             <span style="font-size: 12px; color: #1d6e5d !important; font-weight: bold;">ESTÁNDAR</span><br>
             <span style="font-size: 14px; color: #666 !important;">Margen ±22%</span><br>
-            <span style="font-size: 10px; color: #999 !important;">Depende estado</span>
         </div>
         <div style="width: 33%; border-left: 1px solid #eee;">
-            <span style="font-size: 12px; color: #27ae60 !important; font-weight: bold;">PREMIUM</span><br>
+            <span style="font-size: 12px; color: #27ae60 !important; font-weight: bold;">Límite Superior</span><br>
             <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_max:,.0f}</span><br>
-            <span style="font-size: 10px; color: #999 !important;">Reciclado</span>
         </div>
     </div>
 </div>
