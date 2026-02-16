@@ -18,6 +18,12 @@ st.markdown("""
     p:not(.stButton p) {
         color: #1d6e5d !important;
     }
+            
+    /* 1.2. COMPACTAR ESPACIOS VERTICALES */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.6rem !important; 
+    }
+    
     
     /* 2. BOTÓN CALCULAR */
     div[data-testid="stButton"] button {
@@ -100,10 +106,10 @@ st.markdown("""
     /* 8. RESULTADOS */
     .resultado-box {
         background-color: #f8f9fa;
-        padding: 15px;
+        padding: 10px;
         border-radius: 10px;
         border-left: 5px solid #1d6e5d;
-        margin-top: 10px;
+        margin-top: 5px;
     }
     .resultado-box h3, .resultado-box p, .resultado-box b {
         color: #333 !important; 
@@ -171,7 +177,7 @@ with col_mapa:
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
-    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, tiles=tile_layer)
+    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, min_zoom=12, tiles=tile_layer)
     
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
@@ -206,6 +212,8 @@ with col_datos:
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
+        st.write("") 
+        st.write("") 
         st.write("") 
         st.write("") 
         cochera = st.checkbox("Cochera")
