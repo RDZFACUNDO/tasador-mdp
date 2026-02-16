@@ -211,12 +211,13 @@ with col_datos:
     st.markdown("<h3 style='margin-top: -70px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
 
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
+
     c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
-        st.write("")
-        st.write("")
+        # Usamos un div con altura fija (28px) para simular exactamente el espacio que ocupa el label "Metros (m²)"
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
         cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
