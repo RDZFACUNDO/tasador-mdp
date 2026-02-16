@@ -225,7 +225,7 @@ with col_datos:
     ambientes = st.slider("Ambientes", 1, 6, 2)
     banos = st.slider("Baños", 1, 4, 1)
 
-    ###st.markdown("---")
+    st.markdown("---")
 
     # BOTÓN DE CÁLCULO
     if st.button("CALCULAR VALOR", use_container_width=True):
