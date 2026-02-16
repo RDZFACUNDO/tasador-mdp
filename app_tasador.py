@@ -214,7 +214,7 @@ with col_datos:
     
     with c_form:
         # Título ajustado con margen negativo para subirlo
-        st.markdown("<h3 style='margin-top: -70px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top: -40px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
         
         # 1. Tipo de Propiedad (ocupa todo el ancho de c_form)
         tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
