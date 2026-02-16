@@ -251,9 +251,18 @@ with col_datos:
         
         # GUARDAMOS EL RESULTADO EN LA MEMORIA DE LA SESIÓN
         st.session_state['precio_calculado'] = precio
+        st.session_state['precio_min'] = precio_min  # <--- NUEVO
+        st.session_state['precio_max'] = precio_max
         st.session_state['m2_calculado'] = m2
 
     # --- MOSTRAR RESULTADO (Si existe en memoria) ---
+    if st.session_state['precio_calculado'] is not None:
+        p_final = st.session_state['precio_calculado']
+        p_min = st.session_state['precio_min']
+        p_max = st.session_state['precio_max']
+        m2_final = st.session_state['m2_calculado']
+        
+    # Usamos HTML con Flexbox para mostrar las 3 columnas
     st.markdown(f"""
         <div class="resultado-box" style="text-align: center;">
             <p style="margin-bottom: 5px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>
