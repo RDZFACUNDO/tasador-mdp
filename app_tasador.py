@@ -214,14 +214,14 @@ with col_datos:
     # Usamos columnas [2, 1] donde el '1' es espacio vacío para que no ocupen todo el ancho
     
     # 1. Tipo de Propiedad
-    c_tipo, _ = st.columns([2.5, 1]) 
+    c_tipo, _ = st.columns([2.5, 0]) 
     with c_tipo:
         tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
     # 2. Metros y Cochera
     c_metros_wrapper, _ = st.columns([2.5, 1])
     with c_metros_wrapper:
-        c_m, c_c = st.columns([1.8, 1])
+        c_m, c_c = st.columns([2, 1])
         with c_m:
             metros = st.number_input("Metros (m²)", 20, 600, 60)
         with c_c:
