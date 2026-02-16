@@ -149,7 +149,7 @@ if 'm2_calculado' not in st.session_state:
 if 'last_zona' not in st.session_state:
     st.session_state['last_zona'] = "Centrar en..."
 
-st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
+st.markdown("## 🏡 Tasador Online: Mar del Plata")
 
 col_mapa, col_datos = st.columns([3, 1.8], gap="large")
 
