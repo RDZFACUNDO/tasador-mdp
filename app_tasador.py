@@ -263,23 +263,29 @@ with col_datos:
         m2_final = st.session_state['m2_calculado']
         
         # Recuerda: HTML pegado a la izquierda para que no se rompa
-        st.markdown(f"""
-<div class="resultado-box" style="text-align: center; margin-top: 10px;"> <p style="margin-bottom: 0px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p> 
-    <h2 style="margin: -10; color: #1d6e5d !important; font-size: 32px;">U$S {p_final:,.0f}</h2>
-    <p style="font-size: 14px; color: #888 !important; margin-bottom: 1px;">~ U$S {m2_final:,.0f} / m²</p>
+st.markdown(f"""
+<div class="resultado-box" style="text-align: center; margin-top: -20px; padding-bottom: 5px;">
+    
+    <p style="margin-bottom: -5px; font-size: 12px; color: #666 !important; text-transform: uppercase;">Valor de Mercado Sugerido</p>
+    
+    <h2 style="margin: 0; padding: 0; color: #1d6e5d !important; font-size: 34px; line-height: 1.1;">U$S {p_final:,.0f}</h2>
+    
+    <p style="font-size: 12px; color: #888 !important; margin: 0 0 5px 0;">~ U$S {m2_final:,.0f} / m²</p>
+    
     <hr style="margin: 5px 0; border-top: 1px solid #ddd;">
-    <div style="display: flex; justify-content: space-between; margin-top: 2px;">
-        <div style="width: 33%; border-right: 1px solid #eee;">
-            <span style="font-size: 12px; color: #e67e22 !important; font-weight: bold;">Límite Inferior</span><br>
-            <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_min:,.0f}</span><br>
+    
+    <div style="display: flex; justify-content: space-between; margin-top: 0px;">
+        <div style="width: 33%; border-right: 1px solid #eee; line-height: 1.2;">
+            <span style="font-size: 11px; color: #e67e22 !important; font-weight: bold;">Límite inferior</span><br>
+            <span style="font-size: 15px; color: #333 !important; font-weight: bold;">U$S {p_min:,.0f}</span>
         </div>
-        <div style="width: 33%;">
-            <span style="font-size: 12px; color: #1d6e5d !important; font-weight: bold;">ESTÁNDAR</span><br>
-            <span style="font-size: 14px; color: #666 !important;">Margen ±22%</span><br>
+        <div style="width: 33%; line-height: 1.2;">
+            <span style="font-size: 11px; color: #1d6e5d !important; font-weight: bold;">Estándar</span><br>
+            <span style="font-size: 13px; color: #666 !important;">Margen ±22%</span>
         </div>
-        <div style="width: 33%; border-left: 1px solid #eee;">
-            <span style="font-size: 12px; color: #27ae60 !important; font-weight: bold;">Límite Superior</span><br>
-            <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_max:,.0f}</span><br>
+        <div style="width: 33%; border-left: 1px solid #eee; line-height: 1.2;">
+            <span style="font-size: 11px; color: #27ae60 !important; font-weight: bold;">Límite superior</span><br>
+            <span style="font-size: 15px; color: #333 !important; font-weight: bold;">U$S {p_max:,.0f}</span>
         </div>
     </div>
 </div>
