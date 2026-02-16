@@ -149,7 +149,7 @@ if 'precio_max' not in st.session_state:    # <--- NUEVO
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
 
-st.markdown("## 🏡 Tasador Inteligente: Mar del Plata")
+st.markdown("## 🏡 Tasador Online: Mar del Plata")
 
 col_mapa, col_datos = st.columns([3, 1.8], gap="large")
 
