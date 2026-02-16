@@ -264,7 +264,7 @@ with col_datos:
         
         # Recuerda: HTML pegado a la izquierda para que no se rompa
         st.markdown(f"""
-<div class="resultado-box" style="text-align: center; margin-top: -40px;"> <p style="margin-bottom: 0px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>    <p style="margin-bottom: 3px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>
+<div class="resultado-box" style="text-align: center; margin-top: -10px;"> <p style="margin-bottom: 0px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>    <p style="margin-bottom: 3px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>
     <h2 style="margin: 0; color: #1d6e5d !important; font-size: 32px;">U$S {p_final:,.0f}</h2>
     <p style="font-size: 12px; color: #888 !important; margin-bottom: 5px;">~ U$S {m2_final:,.0f} / m²</p>
     <hr style="margin: 5px 0; border-top: 1px solid #ddd;">
