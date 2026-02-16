@@ -19,18 +19,13 @@ st.markdown("""
         color: #1d6e5d !important;
     }
     
-    /* 2. COMPACTAR ESPACIOS VERTICALES */
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.6rem !important; 
-    }
-    
-    /* 3. BOTÓN CALCULAR */
+    /* 2. BOTÓN CALCULAR */
     div[data-testid="stButton"] button {
         width: 100%;
         background-color: #1d6e5d !important;
         border: none !important;
         height: 3em;
-        margin-top: 10px; 
+        margin-top: 10px;
     }
     div[data-testid="stButton"] button p {
         color: white !important;
@@ -42,7 +37,7 @@ st.markdown("""
         color: white !important;
     }
 
-    /* 4. CHECKBOX (Cochera) */
+    /* 3. CHECKBOX (Cochera) */
     label[data-baseweb="checkbox"] p { color: #1d6e5d !important; }
     span[data-baseweb="checkbox"][aria-checked="true"] div:first-child {
         background-color: #1d6e5d !important;
@@ -54,7 +49,7 @@ st.markdown("""
     }
     span[data-baseweb="checkbox"] svg { fill: white !important; }
 
-    /* 5. INPUT DE NÚMERO (Metros) */
+    /* 4. INPUT DE NÚMERO (Metros) */
     div[data-baseweb="input"] {
         background-color: #1d6e5d !important;
         border-color: #1d6e5d !important;
@@ -70,7 +65,7 @@ st.markdown("""
     }
     div[data-baseweb="base-input"] button svg { fill: white !important; }
 
-    /* 6. SLIDERS */
+    /* 5. SLIDERS */
     div[data-baseweb="slider"] div[role="slider"] {
         background-color: #1d6e5d !important;
         box-shadow: none !important;
@@ -82,12 +77,8 @@ st.markdown("""
         background-color: #1d6e5d !important;
     }
     div[data-testid="stSliderTickBar"] + div { color: #1d6e5d !important; }
-    div[data-baseweb="slider"] {
-        padding-top: 0px !important;
-        padding-bottom: 5px !important;
-    }
 
-    /* 7. SELECTOR DE MAPA (Radio) */
+    /* 6. SELECTOR DE MAPA (Radio) */
     div[data-testid="stRadio"] label p { color: #1d6e5d !important; font-weight: bold; }
     div[data-baseweb="radio"] [aria-checked="true"] > div:first-child {
         background-color: #1d6e5d !important;
@@ -95,7 +86,7 @@ st.markdown("""
     }
     div[data-baseweb="radio"] > div:first-child { border-color: #1d6e5d !important; }
 
-    /* 8. MENÚS DESPLEGABLES */
+    /* 7. MENÚS DESPLEGABLES */
     div[data-baseweb="select"] > div {
         background-color: #1d6e5d !important;
         color: white !important;
@@ -106,13 +97,13 @@ st.markdown("""
     ul[data-baseweb="menu"] { background-color: white !important; }
     ul[data-baseweb="menu"] li span { color: #333 !important; }
 
-    /* 9. RESULTADOS */
+    /* 8. RESULTADOS */
     .resultado-box {
         background-color: #f8f9fa;
-        padding: 10px 15px; 
+        padding: 15px;
         border-radius: 10px;
         border-left: 5px solid #1d6e5d;
-        margin-top: 5px; 
+        margin-top: 10px;
     }
     .resultado-box h3, .resultado-box p, .resultado-box b {
         color: #333 !important; 
@@ -137,15 +128,20 @@ modelo = artefactos['modelo_precio']
 kmeans = artefactos['modelo_zonas']
 cols_entrenamiento = artefactos['columnas']
 
-# --- INICIALIZACIÓN DE VARIABLES ---
+# --- INICIALIZACIÓN DE VARIABLES DE ESTADO ---
 if 'lat' not in st.session_state:
     st.session_state['lat'] = -38.0000
 if 'lon' not in st.session_state:
     st.session_state['lon'] = -57.5500
+    
+# Variables para guardar el resultado
 if 'precio_calculado' not in st.session_state:
     st.session_state['precio_calculado'] = None
 if 'm2_calculado' not in st.session_state:
     st.session_state['m2_calculado'] = None
+
+# --- NUEVA VARIABLE: MEMORIA DEL MENÚ ---
+# Esto es lo que nos permitirá saber si cambiaste el menú o si solo cliqueaste el mapa
 if 'last_zona' not in st.session_state:
     st.session_state['last_zona'] = "Centrar en..."
 
@@ -169,44 +165,52 @@ with col_mapa:
         }
         zona_elegida = st.selectbox("Ir a Zona", list(barrios.keys()), label_visibility="collapsed")
 
+    # --- LÓGICA CORREGIDA ---
+    # Solo movemos el mapa si el menú CAMBIÓ respecto a la última vez
     if zona_elegida != st.session_state['last_zona']:
-        st.session_state['last_zona'] = zona_elegida
+        st.session_state['last_zona'] = zona_elegida # Actualizamos la memoria
+        
         if zona_elegida != "Centrar en...":
             nueva_lat, nueva_lon = barrios[zona_elegida]
             if nueva_lat:
                 st.session_state['lat'] = nueva_lat
                 st.session_state['lon'] = nueva_lon
-                st.rerun()
+                st.rerun() # Recargamos para viajar al barrio nuevo
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
     m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, tiles=tile_layer)
+    
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
-        popup="Ubicación elegida",
+        popup="Propiedad",
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
-    m.add_child(folium.LatLngPopup())
 
+    # El mapa devuelve datos cada vez que interactúas
     mapa_output = st_folium(m, height=480, use_container_width=True)
 
+    # --- LÓGICA DE CLIC EN EL MAPA ---
     if mapa_output['last_clicked']:
         click_lat = mapa_output['last_clicked']['lat']
         click_lon = mapa_output['last_clicked']['lng']
+        
+        # Si cliquearon en un lugar nuevo
         if abs(click_lat - st.session_state['lat']) > 0.0001 or abs(click_lon - st.session_state['lon']) > 0.0001:
             st.session_state['lat'] = click_lat
             st.session_state['lon'] = click_lon
+            st.rerun() # Recargamos para mover el pin rojo
     
     st.info("👆 Hacé clic en el mapa para ajustar la ubicación exacta antes de tasar.")
 
 
 with col_datos:
-    st.markdown("<h3 style='margin-top: -25px; padding-bottom: 0px;'>Características</h3>", unsafe_allow_html=True)
+    # --- CAMBIO AQUÍ: Margen negativo para subir todo el bloque ---
+    st.markdown("<h3 style='margin-top: -70px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
     
-    # --- FILA ÚNICA PARA INPUTS ---
-    c_tipo, c_metros, c_cochera = st.columns([2, 1.5, 0.8])
-    with c_tipo:
-        tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
+    tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
+    
+    c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
@@ -219,6 +223,7 @@ with col_datos:
 
     st.markdown("<hr style='margin: 10px 0; border-color: #1d6e5d; opacity: 0.3;'>", unsafe_allow_html=True)
 
+    # BOTÓN DE CÁLCULO
     if st.button("CALCULAR VALOR", use_container_width=True):
         input_data = pd.DataFrame(0, index=[0], columns=cols_entrenamiento)
         input_data['metros'] = metros
@@ -227,6 +232,7 @@ with col_datos:
         input_data['ambientes'] = ambientes
         input_data['banos'] = banos
         input_data['cochera'] = 1 if cochera else 0
+        
         input_data['cluster_ubicacion'] = kmeans.predict([[st.session_state['lat'], st.session_state['lon']]])[0]
         
         col_tipo = f"tipo_{tipo}"
@@ -235,17 +241,21 @@ with col_datos:
             
         precio = modelo.predict(input_data)[0]
         m2 = precio / metros
+        
+        # GUARDAMOS EL RESULTADO EN LA MEMORIA DE LA SESIÓN
         st.session_state['precio_calculado'] = precio
         st.session_state['m2_calculado'] = m2
 
+    # --- MOSTRAR RESULTADO (Si existe en memoria) ---
     if st.session_state['precio_calculado'] is not None:
         precio_final = st.session_state['precio_calculado']
         m2_final = st.session_state['m2_calculado']
+        
         st.markdown(f"""
         <div class="resultado-box">
             <h3 style="margin-bottom: 0px;">U$S {precio_final:,.0f}</h3>
-            <p style="margin-bottom: 5px; font-size: 14px;">Precio Estimado de Mercado</p>
+            <p style="margin-bottom: 5px;">Precio Estimado de Mercado</p>
             <hr style="margin: 5px 0; border-top: 1px solid #ccc;">
-            <p style="font-size: 13px; margin-bottom: 0;">Valor por m²: <b>U$S {m2_final:,.0f}</b></p>
+            <p style="font-size: 14px; margin-bottom: 0;">Valor por m²: <b>U$S {m2_final:,.0f}</b></p>
         </div>
         """, unsafe_allow_html=True)
