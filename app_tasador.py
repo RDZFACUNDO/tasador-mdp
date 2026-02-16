@@ -211,11 +211,13 @@ with col_datos:
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
     c_tipo, c_metros, c_cochera = st.columns([2, 1.5, 0.8])
+    
     with c_tipo:
         tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     with c_metros:
         metros = st.number_input("Metros (m²)", 20, 600, 60)
     with c_cochera:
+        # Espacio para alinear verticalmente el checkbox con los inputs
         st.write("") 
         st.write("") 
         cochera = st.checkbox("Cochera")
