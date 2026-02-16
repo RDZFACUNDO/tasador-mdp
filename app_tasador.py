@@ -31,7 +31,7 @@ st.markdown("""
         background-color: #1d6e5d !important;
         border: none !important;
         height: 3em;
-        margin-top: 15px;
+        margin-top: 10px;
     }
     div[data-testid="stButton"] button p {
         color: white !important;
@@ -204,7 +204,7 @@ with col_mapa:
 
 
 with col_datos:
-    st.markdown("### Características")
+    st.markdown("<h3 style='margin-top: -50px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
     
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
