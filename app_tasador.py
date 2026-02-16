@@ -212,9 +212,18 @@ with col_datos:
     
     tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
     
+    # --- LÓGICA DINÁMICA DE ETIQUETA ---
+    if tipo == "Casas":
+        label_metros = "Metros Totales (incluida superficie no cubierta)"
+    else:
+        label_metros = "Metros (m²)"
+    # -----------------------------------
+
     c_metros, c_cochera = st.columns([2, 1])
     with c_metros:
-        metros = st.number_input("Metros (m²)", 20, 600, 60)
+        # Aquí usamos la variable 'label_metros' en lugar del texto fijo
+        metros = st.number_input(label_metros, 20, 600, 60)
+        
     with c_cochera:
         st.write("") 
         st.write("") 
