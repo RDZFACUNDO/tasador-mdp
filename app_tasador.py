@@ -220,6 +220,7 @@ with col_datos:
         st.write("") 
         st.write("") 
         st.write("") 
+        st.write("") 
         cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
