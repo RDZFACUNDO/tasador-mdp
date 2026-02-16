@@ -179,13 +179,20 @@ with col_mapa:
 
     tile_layer = "CartoDB positron" if estilo_mapa == "Claro" else "OpenStreetMap"
 
-    m = folium.Map(location=[st.session_state['lat'], st.session_state['lon']], zoom_start=14, tiles=tile_layer)
+    m = folium.Map(
+        location=[st.session_state['lat'], st.session_state['lon']], 
+        zoom_start=14, 
+        min_zoom=12,  # Evita que se alejen demasiado
+        max_zoom=18,
+        tiles=tile_layer
+    )
     
     folium.Marker(
         [st.session_state['lat'], st.session_state['lon']],
-        popup="Propiedad",
+        popup="Ubicación elegida",
         icon=folium.Icon(color="red", icon="home")
     ).add_to(m)
+    m.add_child(folium.LatLngPopup())
 
     # El mapa devuelve datos cada vez que interactúas
     mapa_output = st_folium(m, height=480, use_container_width=True)
@@ -205,18 +212,26 @@ with col_mapa:
 
 
 with col_datos:
-    # --- CAMBIO AQUÍ: Margen negativo para subir todo el bloque ---
     st.markdown("<h3 style='margin-top: -70px; padding-bottom: 5px;'>Características</h3>", unsafe_allow_html=True)
     
-    tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
+    # --- CAMBIO 2: HACERLOS MÁS ANGOSTOS (Mismo orden, menos ancho) ---
+    # Usamos columnas [2, 1] donde el '1' es espacio vacío para que no ocupen todo el ancho
     
-    c_metros, c_cochera = st.columns([2, 1])
-    with c_metros:
-        metros = st.number_input("Metros (m²)", 20, 600, 60)
-    with c_cochera:
-        st.write("") 
-        st.write("") 
-        cochera = st.checkbox("Cochera")
+    # 1. Tipo de Propiedad
+    c_tipo, _ = st.columns([2.5, 1]) 
+    with c_tipo:
+        tipo = st.selectbox("Tipo de Propiedad", ["Departamentos", "Casas", "Ph", "Locales", "Oficinas"])
+    
+    # 2. Metros y Cochera
+    c_metros_wrapper, _ = st.columns([2.5, 1])
+    with c_metros_wrapper:
+        c_m, c_c = st.columns([1.8, 1])
+        with c_m:
+            metros = st.number_input("Metros (m²)", 20, 600, 60)
+        with c_c:
+            st.write("") 
+            st.write("") 
+            cochera = st.checkbox("Cochera")
 
     ambientes = st.slider("Ambientes", 1, 6, 2)
     banos = st.slider("Baños", 1, 4, 1)
