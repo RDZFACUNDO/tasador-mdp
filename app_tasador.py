@@ -255,24 +255,14 @@ with col_datos:
         st.session_state['precio_max'] = precio_max
         st.session_state['m2_calculado'] = m2
 
-# --- MOSTRAR RESULTADO (Si existe en memoria) ---
-if st.session_state['precio_calculado'] is not None:
-    # 1. RECUPERAMOS LAS VARIABLES (ESTO DEBE ESTAR DENTRO DEL IF)
-    p_final = st.session_state['precio_calculado']
-    p_min = st.session_state['precio_min']
-    p_max = st.session_state['precio_max']
-    m2_final = st.session_state['m2_calculado']
-    
-    # 2. MOSTRAMOS EL HTML (ESTO TAMBIÉN DEBE ESTAR DENTRO DEL IF)
-    # Fíjate que st.markdown no empieza al principio de la línea, tiene 4 espacios.
-# --- MOSTRAR RESULTADO ---
+        # --- MOSTRAR RESULTADO (AHORA ADENTRO DE LA COLUMNA) ---
     if st.session_state['precio_calculado'] is not None:
         p_final = st.session_state['precio_calculado']
         p_min = st.session_state['precio_min']
         p_max = st.session_state['precio_max']
         m2_final = st.session_state['m2_calculado']
         
-        # NOTA: El HTML de abajo está pegado a la izquierda para evitar errores de formato
+        # Recuerda: HTML pegado a la izquierda para que no se rompa
         st.markdown(f"""
 <div class="resultado-box" style="text-align: center;">
     <p style="margin-bottom: 5px; font-size: 14px; color: #666 !important;">VALOR DE MERCADO SUGERIDO</p>
@@ -283,17 +273,17 @@ if st.session_state['precio_calculado'] is not None:
         <div style="width: 33%; border-right: 1px solid #eee;">
             <span style="font-size: 12px; color: #e67e22 !important; font-weight: bold;">OPORTUNIDAD</span><br>
             <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_min:,.0f}</span><br>
-            <span style="font-size: 10px; color: #999 !important;">A refaccionar / Urgencia</span>
+            <span style="font-size: 10px; color: #999 !important;">A refaccionar</span>
         </div>
         <div style="width: 33%;">
             <span style="font-size: 12px; color: #1d6e5d !important; font-weight: bold;">ESTÁNDAR</span><br>
             <span style="font-size: 14px; color: #666 !important;">Margen ±22%</span><br>
-            <span style="font-size: 10px; color: #999 !important;">Depende estado real</span>
+            <span style="font-size: 10px; color: #999 !important;">Depende estado</span>
         </div>
         <div style="width: 33%; border-left: 1px solid #eee;">
             <span style="font-size: 12px; color: #27ae60 !important; font-weight: bold;">PREMIUM</span><br>
             <span style="font-size: 16px; color: #333 !important; font-weight: bold;">U$S {p_max:,.0f}</span><br>
-            <span style="font-size: 10px; color: #999 !important;">Reciclado / Vistas</span>
+            <span style="font-size: 10px; color: #999 !important;">Reciclado</span>
         </div>
     </div>
 </div>
