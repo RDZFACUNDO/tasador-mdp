@@ -1,0 +1,11 @@
+streamlit>=1.49
+streamlit-folium>=0.20
+folium>=0.17
+pandas>=2.2
+numpy>=1.26
+# Pineadas: el .pkl contiene objetos de estas librerías; si cambian de
+# versión mayor hay que regenerar el artefacto con train_model.py.
+scikit-learn==1.8.0
+lightgbm==4.6.0
+shap>=0.46
+joblib>=1.4
