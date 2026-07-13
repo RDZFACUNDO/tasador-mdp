@@ -13,6 +13,7 @@ Tasador Inmobiliario MDP — app Streamlit (v2).
 """
 
 import math
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -52,6 +53,11 @@ COLOR_BG = "#f5f5f5"
 EMBEDDED = st.query_params.get("embedded", "false").lower() == "true"
 
 MIN_COMPARABLES_ZONA = 30  # umbral para el aviso de "pocos datos en esta zona"
+
+# Ruta absoluta al artefacto, resuelta contra la ubicación del script.
+# Así la app carga bien el modelo sin importar desde qué carpeta se
+# ejecute `streamlit run` (evita el clásico FileNotFoundError por cwd).
+ARTEFACTO_PATH = Path(__file__).resolve().parent / "modelo_tasador.pkl"
 
 BARRIOS = {
     "Centrar en...": (None, None),
@@ -132,6 +138,46 @@ label, .stSelectbox label, .stNumberInput label, .stSlider label {{
     color: #444 !important; font-weight: 500 !important; font-size: 14px !important;
 }}
 
+/* Selectboxes (Ir a zona, Tipo de propiedad, Antigüedad): control cerrado en
+   verde de marca en vez del negro por defecto de Streamlit */
+div[data-baseweb="select"] > div {{
+    background-color: {COLOR} !important;
+    border-color: {COLOR} !important;
+    border-radius: 6px !important;
+}}
+div[data-baseweb="select"] > div:hover {{ background-color: {COLOR_HOVER} !important; }}
+div[data-baseweb="select"] span {{ color: white !important; }}
+div[data-baseweb="select"] svg {{ fill: white !important; }}
+/* El menú desplegable se mantiene blanco con texto oscuro para legibilidad */
+ul[data-baseweb="menu"] {{ background-color: white !important; }}
+ul[data-baseweb="menu"] li {{ color: #333 !important; }}
+ul[data-baseweb="menu"] li:hover {{ background-color: #f0f4f4 !important; }}
+
+/* Number input (Metros cubiertos): mismo verde, texto blanco, botones +/- */
+div[data-testid="stNumberInput"] div[data-baseweb="input"] {{
+    background-color: {COLOR} !important;
+    border-color: {COLOR} !important;
+    border-radius: 6px !important;
+}}
+div[data-testid="stNumberInput"] input {{
+    background-color: {COLOR} !important;
+    color: white !important;
+}}
+div[data-testid="stNumberInput"] button {{
+    background-color: {COLOR_HOVER} !important;
+}}
+div[data-testid="stNumberInput"] button svg {{ fill: white !important; }}
+
+/* Radio "Estilo de mapa": el texto quedaba blanco sobre blanco, pasa a verde */
+div[data-testid="stRadio"] label p {{
+    color: {COLOR} !important; font-weight: 600 !important;
+}}
+div[data-baseweb="radio"] [aria-checked="true"] > div:first-child {{
+    background-color: {COLOR} !important;
+    border-color: {COLOR} !important;
+}}
+div[data-baseweb="radio"] > div:first-child {{ border-color: {COLOR} !important; }}
+
 /* Expander */
 details[data-testid="stExpander"] {{
     background: white; border-radius: 12px;
@@ -148,9 +194,13 @@ details[data-testid="stExpander"] {{
 @st.cache_resource
 def cargar_artefactos():
     try:
-        return joblib.load("modelo_tasador.pkl")
+        return joblib.load(ARTEFACTO_PATH)
     except FileNotFoundError:
-        st.error("⚠️ No se encuentra `modelo_tasador.pkl`. Corré `train_model.py` primero.")
+        st.error(
+            f"⚠️ No se encuentra `modelo_tasador.pkl` en `{ARTEFACTO_PATH}`. "
+            f"Corré `train_model.py` primero, o verificá que el archivo esté "
+            f"en la misma carpeta que `app_tasador.py`."
+        )
         st.stop()
 
 
@@ -346,7 +396,7 @@ with col_mapa:
 
     salida_mapa = st_folium(
         m,
-        height=430 if not EMBEDDED else 380,
+        height=640 if not EMBEDDED else 490,
         use_container_width=True,
         returned_objects=["last_clicked"],
     )
