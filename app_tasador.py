@@ -138,20 +138,37 @@ label, .stSelectbox label, .stNumberInput label, .stSlider label {{
     color: #444 !important; font-weight: 500 !important; font-size: 14px !important;
 }}
 
-/* Selectboxes (Ir a zona, Tipo de propiedad, Antigüedad): control cerrado en
-   verde de marca en vez del negro por defecto de Streamlit */
-div[data-baseweb="select"] > div {{
+/* Selectboxes (Ir a zona, Tipo de propiedad, Antigüedad): esta versión de
+   Streamlit los arma con react-aria-ComboBox, no con BaseWeb -> se apunta
+   a esa estructura real en vez de data-baseweb="select". */
+div[data-testid="stSelectbox"] .react-aria-ComboBox,
+div[data-testid="stSelectbox"] .react-aria-ComboBox [role="group"] {{
     background-color: {COLOR} !important;
     border-color: {COLOR} !important;
     border-radius: 6px !important;
 }}
-div[data-baseweb="select"] > div:hover {{ background-color: {COLOR_HOVER} !important; }}
-div[data-baseweb="select"] span {{ color: white !important; }}
-div[data-baseweb="select"] svg {{ fill: white !important; }}
-/* El menú desplegable se mantiene blanco con texto oscuro para legibilidad */
+div[data-testid="stSelectbox"] input[role="combobox"] {{
+    background-color: {COLOR} !important;
+    color: white !important;
+}}
+div[data-testid="stSelectbox"] input[role="combobox"]::placeholder {{
+    color: rgba(255,255,255,0.85) !important;
+}}
+div[data-testid="stSelectbox"] button {{
+    background-color: {COLOR} !important;
+}}
+div[data-testid="stSelectbox"] svg {{ fill: white !important; }}
+
+/* Menú desplegable emergente: blanco con texto oscuro para legibilidad,
+   sea cual sea el widget que lo abre (selectbox usa role=listbox/option) */
+[role="listbox"] {{ background-color: white !important; }}
+[role="listbox"] [role="option"] {{ color: #333 !important; }}
+[role="listbox"] [role="option"]:hover,
+[role="listbox"] [role="option"][aria-selected="true"] {{
+    background-color: #f0f4f4 !important;
+}}
 ul[data-baseweb="menu"] {{ background-color: white !important; }}
 ul[data-baseweb="menu"] li {{ color: #333 !important; }}
-ul[data-baseweb="menu"] li:hover {{ background-color: #f0f4f4 !important; }}
 
 /* Number input (Metros cubiertos): mismo verde, texto blanco, botones +/- */
 div[data-testid="stNumberInput"] div[data-baseweb="input"] {{
